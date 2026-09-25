@@ -53,7 +53,7 @@
 }
 .pb-input { background: transparent; border: 0; resize: none; min-height: 22px;
   color: var(--moon); outline: none; }
-.pb-send { border-radius: 999px; padding: 8px 14px; background: var(--lilac); color: #0B1020; }
+.pb-send { border-radius: 999px; padding: 8px 14px; background: var(--fg); color: var(--bg); }
 ```
 
 ---

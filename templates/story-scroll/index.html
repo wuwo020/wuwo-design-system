@@ -7,127 +7,176 @@
 <style>
 /* ============================================================
    沉浸暗场（方向 A）滚动叙事起步模板 — 手机网页优先 + PC 各自构图
-   规则来源：references/aesthetic-directions.md / responsive-dual.md
-   / scroll-gesture-motion.md / anti-ai-slop.md
-   · 无渐变字、无玻璃、无假插画、无 emoji 图标
-   · 跟手 scrub 为主；0 进度即可读：首屏任何元素都不靠滚动才出现
-   · 没有 JS / prefers-reduced-motion：全部内容静态可读
-   · PC 不是「放大的手机页」：首屏分栏、时刻两列、画廊整卡对齐 + 滚轮驱动横移
+   v2.1 暗色重做：质感来自「调色 + 材质 + 光」，不来自发光与渐变字
+   · 底色是带温度的墨黑（不是藏青 SaaS 深色模式）
+   · 文字是骨白（不是冷蓝白），层级靠透明度阶梯，不靠换色
+   · 材质：胶片颗粒 + 舞台顶光 + 暗角；层次：亮度三阶（不是描边框）
+   · 点缀色全页一个，只落在：一个词 / 一条线 / 一个点 / 一个按钮
+   · 跟手 scrub 为主；0 进度即可读；无 JS / reduced-motion 静态可读
    ============================================================ */
-:root{
-  --ink:#0B1020; --ink-2:#121829; --line:rgba(242,244,250,.08);
-  --moon:#F2F4FA; --mist:#93A0C2; --dim:#5D6889;
-  --rose:#FFA8BE; --accent:var(--rose);
-  --radius-md:10px; --radius-lg:16px;
-  --pad:20px; --section:88px; --stage:1200px; --gap:14px;
+
+/* ---------- 调色板：一个项目选一套，data-palette 切换 ---------- */
+/* 结构固定：3 阶底色（只差亮度）+ 同一色温的骨白文字三档透明度 + 1 个点缀 + 1 个「直播中」状态色 */
+:root{                                   /* 默认：石墨 · 香槟（点缀）· 胭脂（仅直播状态） */
+  --bg:#0C0C0D; --bg-2:#141415; --bg-3:#1C1C1E;
+  --fg:#EDEAE4;
+  --fg-2:rgba(237,234,228,.74);          /* 正文/导语：暗底上低于 .7 就读不清 */
+  --fg-3:rgba(237,234,228,.56);          /* 元信息 */
+  --rule:rgba(237,234,228,.11);
+  --accent:#C9A96E;                      /* 香槟：线、编号、按钮悬停 */
+  --live:#D0574A;                        /* 胭脂：只给 REC/直播中 状态点，别处不用 */
+  --light:rgba(255,236,205,.055);        /* 顶光 */
+  --frame:#101011;
 }
-@media (min-width:1024px){ :root{ --pad:56px; --section:150px; } }
+[data-palette="rouge"]{                  /* 墨 · 胭脂：更情绪，适合人物/主播个人志 */
+  --bg:#0F0E0D; --bg-2:#161412; --bg-3:#1E1B18;
+  --fg:#EEE8DE; --fg-2:rgba(238,232,222,.74); --fg-3:rgba(238,232,222,.52);
+  --rule:rgba(238,232,222,.11);
+  --accent:#A8544A; --live:#D8584A; --light:rgba(255,210,175,.06); --frame:#12100F;
+}
+[data-palette="celadon"]{                /* 深岩 · 青瓷：冷调、疏离，适合纪录/复盘 */
+  --bg:#0B0F12; --bg-2:#11171B; --bg-3:#182127;
+  --fg:#E5EAEC; --fg-2:rgba(229,234,236,.74); --fg-3:rgba(229,234,236,.52);
+  --rule:rgba(229,234,236,.11);
+  --accent:#93BBAA; --live:#D0574A; --light:rgba(195,228,232,.05); --frame:#0D1215;
+}
+:root{
+  --r-media:4px; --r-ctl:999px;          /* 暗场里锐一点更贵：媒体 4px，控件胶囊 */
+  --pad:20px; --section:96px; --stage:1200px; --gap:14px;
+  --serif:"Noto Serif CJK SC","Source Han Serif SC","Songti SC",Georgia,serif;
+  --sans:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:ui-monospace,"JetBrains Mono","SF Mono",Menlo,monospace;
+}
+@media (min-width:1024px){ :root{ --pad:56px; --section:160px; } }
 
 *{margin:0;padding:0;box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%; background:var(--bg)}
 body{
-  background:var(--ink); color:var(--moon);
-  font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-  font-size:17px; line-height:1.8; letter-spacing:.01em; overflow-x:hidden;
+  background:var(--bg); color:var(--fg);
+  font-family:var(--sans); font-weight:400;
+  font-size:17px; line-height:1.85; letter-spacing:.02em; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-h1,h2{font-family:"Noto Serif CJK SC","Songti SC",Georgia,serif; font-weight:700; line-height:1.14; letter-spacing:-.01em}
+/* 材质 1：胶片颗粒（静态 SVG 噪点，固定层，不参与重排） */
+body::after{
+  content:""; position:fixed; inset:-50%; z-index:50; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.06; mix-blend-mode:overlay;
+}
+h1,h2{font-family:var(--serif); font-weight:900; -webkit-text-stroke:.012em currentColor; line-height:1.12; letter-spacing:-.015em; font-feature-settings:"palt"}
 .wrap{max-width:var(--stage); margin:0 auto; padding:0 var(--pad)}
-section{padding:var(--section) 0}
-.alt{background:var(--ink-2)}
-.eyebrow{font-size:13px; letter-spacing:.14em; color:var(--mist); font-variant-numeric:tabular-nums}
-.lead{color:var(--mist); max-width:32em}
+section{padding:var(--section) 0; position:relative}
+.alt{background:var(--bg-2)}
+.eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--fg-3); font-variant-numeric:tabular-nums; display:flex; align-items:center; gap:10px}
+.eyebrow::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--accent)}
+.lead{color:var(--fg-2); max-width:30em; font-weight:400}
+
+/* ---------- 影像位：像一帧胶片，而不是线框 ---------- */
+.shot{
+  position:relative; overflow:hidden; border-radius:var(--r-media);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--bg-3) 55%, var(--frame)) 0%, var(--frame) 70%);
+  box-shadow:0 0 0 1px var(--rule), 0 40px 80px -40px rgba(0,0,0,.8);
+}
+.shot::before{                         /* 裁切角标 */
+  content:""; position:absolute; inset:14px; pointer-events:none;
+  background:
+    linear-gradient(var(--fg-3),var(--fg-3)) top left/14px 1px no-repeat,
+    linear-gradient(var(--fg-3),var(--fg-3)) top left/1px 14px no-repeat,
+    linear-gradient(var(--fg-3),var(--fg-3)) bottom right/14px 1px no-repeat,
+    linear-gradient(var(--fg-3),var(--fg-3)) bottom right/1px 14px no-repeat;
+}
+.shot .tc{position:absolute; left:18px; bottom:16px; font-family:var(--mono); font-size:11px;
+  letter-spacing:.14em; color:var(--fg-2); display:flex; align-items:center; gap:8px}
+.shot .tc::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--live)}
+.shot .ratio{position:absolute; right:18px; top:16px; font-family:var(--mono); font-size:10.5px;
+  letter-spacing:.14em; color:var(--fg-3)}
 
 /* ---------- 1 首屏 ---------- */
 .hero{min-height:100svh; display:flex; flex-direction:column; justify-content:center;
-  gap:0; padding-top:calc(24px + env(safe-area-inset-top)); padding-bottom:40px}
-.hero h1{font-size:clamp(38px,11vw,96px); margin:14px 0 0}
-.hero h1 span{display:block}
-.hero .lead{margin-top:22px}
-.hero-figure{
-  margin-top:34px; border:1px solid var(--line); border-radius:var(--radius-lg);
-  aspect-ratio:16/9; display:grid; place-items:center; background:#0E1424;
+  padding-top:calc(16px + env(safe-area-inset-top)); padding-bottom:64px}
+.hero::before{                           /* 材质 2：舞台顶光 + 暗角，照在内容上，不是飘着的光球 */
+  content:""; position:absolute; inset:0; pointer-events:none; z-index:-1;
+  background:
+    radial-gradient(70% 55% at 50% -8%, var(--light), transparent 70%),
+    radial-gradient(140% 100% at 50% 40%, transparent 55%, rgba(0,0,0,.45));
 }
-.hero-figure p{font-size:13px; color:var(--dim); text-align:center; padding:12px}
-.scroll-cue{white-space:nowrap; display:flex; align-items:center; gap:10px; margin-top:26px; color:var(--dim); font-size:12px}
-.scroll-cue i{display:block; width:34px; height:1px; background:var(--accent)}
+.hero h1{font-size:clamp(40px,11.5vw,104px); margin:18px 0 0}
+.hero h1 span{display:block}
+.hero h1 .reveal{color:var(--fg)}
+.hero .lead{margin-top:24px}
+.hero-figure{margin-top:36px; aspect-ratio:16/10}
+.scroll-cue{white-space:nowrap; display:flex; align-items:center; gap:12px; margin-top:28px;
+  color:var(--fg-3); font-family:var(--mono); font-size:11px; letter-spacing:.2em}
+.scroll-cue i{display:block; width:40px; height:1px; background:var(--accent)}
 @media (min-width:1024px){
-  .hero{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-        align-content:center; column-gap:56px; min-height:100svh; padding-bottom:56px}
+  .hero{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+        align-content:center; column-gap:64px; padding-bottom:64px}
   .hero .eyebrow,.hero h1,.hero .lead,.hero .scroll-cue{grid-column:1}
-  .hero h1{font-size:clamp(52px,4.6vw,76px)}
-  .hero .lead{max-width:26em}
+  .hero h1{font-size:clamp(56px,5vw,84px)}
+  .hero .lead{max-width:24em; font-size:18px}
   .hero-figure{grid-column:2; grid-row:1 / span 4; align-self:center; margin-top:0; aspect-ratio:4/5}
 }
 
-/* ---------- 2 时刻轴：进度线跟手填充 ---------- */
-.tl-track{position:relative; height:2px; background:var(--line); margin:26px 0 34px}
+/* ---------- 2 时刻轴 ---------- */
+.timeline{border-top:1px solid var(--rule)}
+.tl-track{position:relative; height:1px; background:var(--rule); margin:28px 0 40px}
 .tl-fill{position:absolute; inset:0 auto 0 0; width:0%; background:var(--accent)}
-.moment + .moment{margin-top:64px; padding-top:64px; border-top:1px solid var(--line)}
-.moment-index{font-family:ui-monospace,"JetBrains Mono",monospace; font-size:13px; color:var(--mist); font-variant-numeric:tabular-nums}
-.moment h2{font-size:clamp(26px,7vw,46px); margin:8px 0 12px}
-.moment p{color:var(--mist); max-width:34em}
+.moment + .moment{margin-top:72px; padding-top:72px; border-top:1px solid var(--rule)}
+.moment-index{font-family:var(--mono); font-size:12px; letter-spacing:.14em; color:var(--fg-3); font-variant-numeric:tabular-nums}
+.moment-index b{color:var(--accent); font-weight:400}
+.moment h2{font-size:clamp(28px,7.4vw,48px); margin:10px 0 14px}
+.moment p{color:var(--fg-2); max-width:32em; font-weight:400}
 @media (min-width:1024px){
-  /* PC：两列——左列刻度+标题（sticky），右列正文，横向空间真的用上 */
-  .moment{display:grid; grid-template-columns:minmax(320px,460px) minmax(0,1fr);
-          column-gap:56px; align-items:start}
+  .moment{display:grid; grid-template-columns:minmax(320px,460px) minmax(0,1fr); column-gap:64px; align-items:start}
   .moment-head{position:sticky; top:104px}
-  .moment h2{margin:8px 0 0; font-size:clamp(24px,2.6vw,40px); text-wrap:balance}
-  .moment p{font-size:18px; padding-top:6px}
+  .moment h2{margin:10px 0 0; font-size:clamp(26px,2.7vw,42px); text-wrap:balance}
+  .moment p{font-size:18px; padding-top:8px}
 }
 
-/* ---------- 3 画廊：手机横滑 / PC 三列整卡 + 滚轮驱动横移 ---------- */
-.gallery-head{margin-bottom:26px}
-.gallery-head h2{font-size:clamp(24px,6vw,44px); margin:8px 0 0}
-.gallery-hint{display:none; margin-top:10px; font-size:12px; color:var(--dim)}
-.gallery-rail{
-  display:flex; gap:var(--gap); overflow-x:auto; scroll-snap-type:x mandatory;
-  -webkit-overflow-scrolling:touch; padding:0 var(--pad) 8px; scrollbar-width:none;
-}
+/* ---------- 3 画廊 ---------- */
+.gallery-head{margin-bottom:30px}
+.gallery-head h2{font-size:clamp(26px,6.4vw,46px); margin:12px 0 0}
+.gallery-hint{display:none; margin-top:12px; font-size:12px; color:var(--fg-3)}
+.gallery-rail{display:flex; gap:var(--gap); overflow-x:auto; scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch; padding:0 var(--pad) 8px; scrollbar-width:none}
 .gallery-rail::-webkit-scrollbar{display:none}
-.frame{
-  flex:0 0 76%; scroll-snap-align:center;
-  border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; background:#0E1424;
-}
-.frame .ph{aspect-ratio:3/4; display:grid; place-content:center; gap:6px;
-  color:var(--mist); font-size:14px; text-align:center; padding:14px}
-.ph small{display:block; color:var(--dim); font-size:11px; margin-top:6px}
-.frame figcaption{padding:12px 14px; font-size:14px; color:var(--mist); border-top:1px solid var(--line); min-height:58px}
-.frame figcaption b{color:var(--moon); font-weight:600}
+.frame{flex:0 0 78%; scroll-snap-align:center}
+.frame .shot{aspect-ratio:3/4}
+.frame figcaption{padding:14px 2px 0; font-size:14px; color:var(--fg-2); min-height:56px; font-weight:400}
+.frame figcaption b{color:var(--fg); font-weight:500; margin-right:6px}
 @media (min-width:1024px){
-  /* PC：出血到视口两侧；每屏正好 3 整卡（宽 = 版心三等分），滚轮推进 1 张卡 */
   .gallery{overflow:hidden}
-  .gallery-rail{
-    flex-wrap:nowrap; overflow:visible; will-change:transform;
-    padding:0 max(var(--pad), calc((100vw - var(--stage)) / 2));
-  }
+  .gallery-rail{flex-wrap:nowrap; overflow:visible; will-change:transform;
+    padding:0 max(var(--pad), calc((100vw - var(--stage)) / 2))}
   .frame{flex:0 0 calc((var(--stage) - 2 * var(--gap)) / 3); scroll-snap-align:none}
-  .frame .ph{aspect-ratio:auto; height:min(40vh,330px)}
-  .gallery{padding-bottom:calc(var(--section) + 6vh)}     /* 卡片说明不贴视口底边 */
+  .frame .shot{aspect-ratio:auto; height:min(40vh,330px)}
+  .gallery{padding-bottom:calc(var(--section) + 6vh)}
   .gallery-hint{display:block}
 }
 
 /* ---------- 4 收尾 ---------- */
-.outro h2{font-size:clamp(24px,6vw,44px)}
-.outro .note{margin-top:18px; color:var(--mist); font-size:15px; max-width:32em}
+.outro{background:var(--bg-2); border-top:1px solid var(--rule)}
+.outro h2{font-size:clamp(28px,6.6vw,48px)}
+.outro .note{margin-top:20px; color:var(--fg-2); font-size:15.5px; max-width:30em; font-weight:400}
 @media (min-width:1024px){
-  .outro .wrap{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:56px; align-items:start}
-  .outro h2{margin-bottom:0}
+  .outro .wrap{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:64px; align-items:start}
   .outro .note{margin-top:0}
 }
-footer{padding:40px 0 calc(56px + env(safe-area-inset-bottom));
-  border-top:1px solid var(--line); color:var(--mist); font-size:13px}
+footer{padding:40px 0 calc(56px + env(safe-area-inset-bottom)); background:var(--bg-2);
+  border-top:1px solid var(--rule); color:var(--fg-3); font-size:12px; letter-spacing:.04em}
 
-a.btn{
-  display:inline-flex; align-items:center; min-height:48px; margin-top:26px;
-  padding:0 22px; border-radius:999px; border:1px solid var(--accent);
-  color:var(--moon); text-decoration:none; font-size:15px;
+a.btn{                                     /* 实心骨白胶囊：暗底上最「贵」的按钮是反白，不是描边发光 */
+  display:inline-flex; align-items:center; gap:12px; min-height:50px; margin-top:28px;
+  padding:0 26px; border-radius:var(--r-ctl); background:var(--fg); color:var(--bg);
+  text-decoration:none; font-size:15px; font-weight:500; letter-spacing:.04em;
+  transition:background .22s cubic-bezier(.2,.8,.2,1), transform .12s;
 }
+a.btn::after{content:"→"; font-family:var(--mono)}
 a.btn:active{transform:scale(.98)}
-@media (hover:hover) and (pointer:fine){ a.btn:hover{background:rgba(255,168,190,.1)} }
+@media (hover:hover) and (pointer:fine){ a.btn:hover{background:var(--accent); color:var(--fg)} }
 
-/* ---------- 动效：只做「进度跟手」，不做把内容藏起来的表演 ---------- */
-/* 首屏第二行：入场动画（load 时播完即常驻可见）——绝不用滚动门控首屏文字，
-   否则 0 进度就是一块空白，读者第一眼什么都看不到（v1 的教训） */
+/* ---------- 动效 ---------- */
 .reveal{transform:translateY(0); opacity:1}
 .js .reveal{transform:translateY(18px); opacity:0}
 @media (prefers-reduced-motion:reduce){
@@ -142,9 +191,9 @@ a.btn:active{transform:scale(.98)}
   <section class="hero wrap">
     <p class="eyebrow">2026 · 团播现场记录</p>
     <h1><span>晚上十一点</span><span class="reveal">直播间亮起来</span></h1>
-    <p class="lead">一个直播间从妆造间到收播的六个小时。往下滑，画面跟着你的手走。</p>
-    <p class="scroll-cue"><i></i>往下滑</p>
-    <div class="hero-figure"><p>主视觉位 4:5 / 16:9<br>（换成本场直播的真实画面）</p></div>
+    <p class="lead">一个直播间从妆造间到收播的六个小时，画面跟着<span style="white-space:nowrap">你的手指</span>走。</p>
+    <p class="scroll-cue"><i></i>SCROLL · 往下滑</p>
+    <div class="hero-figure shot" role="img" aria-label="主视觉位：换成本场直播的真实画面"><span class="ratio">主视觉 · MAIN</span><span class="tc">REC 23:00:14</span></div>
   </section>
 
   <!-- 2 时刻轴 -->
@@ -155,28 +204,28 @@ a.btn:active{transform:scale(.98)}
 
       <article class="moment">
         <div class="moment-head">
-          <p class="moment-index">20:30 / 妆造间</p>
+          <p class="moment-index"><b>20:30</b> / 妆造间</p>
           <h2>先认领今晚的角色</h2>
         </div>
         <p>三条机位、三套服装、一份流程单。谁站中间、谁接麦、谁唱开场，这个时候定下来，整晚不会乱。</p>
       </article>
       <article class="moment">
         <div class="moment-head">
-          <p class="moment-index">22:00 / 开播</p>
+          <p class="moment-index"><b>22:00</b> / 开播</p>
           <h2>灯一开，人就进来</h2>
         </div>
         <p>前三分钟决定今晚的留存。开场不做介绍，直接进节目，把最稳的那首歌放在第一位。</p>
       </article>
       <article class="moment">
         <div class="moment-head">
-          <p class="moment-index">00:40 / 高光</p>
+          <p class="moment-index"><b>00:40</b> / 高光</p>
           <h2>接住突然涌进来的人</h2>
         </div>
         <p>榜单变化、连麦、临时改流程——运营在后台改，主播在镜头前不能停。这一段通常没有脚本。</p>
       </article>
       <article class="moment">
         <div class="moment-head">
-          <p class="moment-index">02:00 / 收播</p>
+          <p class="moment-index"><b>02:00</b> / 收播</p>
           <h2>关掉灯，回看数据</h2>
         </div>
         <p>时段流水、停留时长、谁的段位掉了。第二天排班前，这份复盘要先看完。</p>
@@ -192,10 +241,10 @@ a.btn:active{transform:scale(.98)}
       <p class="gallery-hint">PC 上滚轮继续往下滚，卡片会横向推进（手机上直接左右滑）</p>
     </div>
     <div class="gallery-rail" id="rail">
-      <figure class="frame"><div class="ph">主画面<small>竖屏机位 · 平台这一路</small></div><figcaption><b>主画面</b> · 传给平台的一路，构图为竖屏</figcaption></figure>
-      <figure class="frame"><div class="ph">近景<small>副机位 · 补情绪</small></div><figcaption><b>近景</b> · 补情绪，切在副歌前</figcaption></figure>
-      <figure class="frame"><div class="ph">全景<small>横屏机位 · 复盘用</small></div><figcaption><b>全景</b> · 用在复盘和招募素材</figcaption></figure>
-      <figure class="frame"><div class="ph">后台<small>数据面板截图</small></div><figcaption><b>后台</b> · 实时流水与停留时长</figcaption></figure>
+      <figure class="frame"><div class="shot" role="img" aria-label="主画面：竖屏机位 · 平台这一路"><span class="ratio">竖屏机位 · 平台这一路</span><span class="tc">主画面</span></div><figcaption><b>主画面</b> · 传给平台的一路，构图为竖屏</figcaption></figure>
+      <figure class="frame"><div class="shot" role="img" aria-label="近景：副机位 · 补情绪"><span class="ratio">副机位 · 补情绪</span><span class="tc">近景</span></div><figcaption><b>近景</b> · 补情绪，切在副歌前</figcaption></figure>
+      <figure class="frame"><div class="shot" role="img" aria-label="全景：横屏机位 · 复盘用"><span class="ratio">横屏机位 · 复盘用</span><span class="tc">全景</span></div><figcaption><b>全景</b> · 用在复盘和招募素材</figcaption></figure>
+      <figure class="frame"><div class="shot" role="img" aria-label="后台：数据面板截图"><span class="ratio">数据面板截图</span><span class="tc">后台</span></div><figcaption><b>后台</b> · 实时流水与停留时长</figcaption></figure>
     </div>
   </section>
 
@@ -222,7 +271,7 @@ a.btn:active{transform:scale(.98)}
     var s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
 
   if (reduce) return;                       // 降级：不加任何动效
-  document.documentElement.classList.add('js');
+  /* 注意：库真正加载成功后才加 .js——否则 CDN 失败时首屏第二行会一直隐藏 */
 
   /* CDN 三源兜底：单源在弱网/代理环境会偶发失败（实测），生产建议自托管 */
   var SOURCES=[
@@ -239,6 +288,8 @@ a.btn:active{transform:scale(.98)}
   });
   chain.then(function(){
     gsap.registerPlugin(ScrollTrigger);
+    document.documentElement.classList.add('js');
+    gsap.set('.hero .reveal',{ y:18, autoAlpha:0 });
     ScrollTrigger.config({ ignoreMobileResize:true });   // 手机地址栏伸缩不重算
     var mm = gsap.matchMedia();
 

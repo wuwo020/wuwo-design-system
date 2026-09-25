@@ -3,7 +3,21 @@
 > 来源：BeautifulUI（beautifului.dev，AI-native 界面模式 12 类，2026-08-17 收录）
 > 定位：**Agent 交互界面**——加载、思考、流式回复、人机确认、任务状态、检索上下文等
 > 场景：AI 助手界面、Agent 后台、聊天应用、工作流编排页
-> 使用方式：按模式文件取结构 + 关键样式，颜色一律换 wuwo token（见 SKILL.md ① 风格宣言）
+> 使用方式：按模式文件取结构 + 关键样式，颜色一律换 wuwo token（见 `references/aesthetic-directions.md`）
+
+### 旧 token 名对照（v2.1 暗色重做后，组件文件里的旧变量名一律按下表映射，不改组件也能换上新配色）
+
+```css
+:root{
+  /* 先引入方向 A 的调色板（--bg/--fg/--accent/--live…），再加这一层别名 */
+  --ink: var(--bg);  --ink-2: var(--bg-3);  --line: var(--rule);
+  --moon: var(--fg); --mist: var(--fg-2);   --dim: var(--fg-3);
+  /* 旧的四个点缀色全部收敛：主点缀=accent，成功/进行中=accent，警示/直播=live */
+  --lilac: var(--accent); --rose: var(--accent); --amber: var(--accent);
+  --tide:  var(--accent); --accent-danger: var(--live);
+}
+```
+后台/工具类界面若走方向 B（仪器极简），同样用这层别名，把 `--bg/--fg` 换成 B 的灰阶值即可。
 
 ## 模式速查
 

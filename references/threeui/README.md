@@ -40,17 +40,14 @@ ThreeUI（by DesignCode / Meng To）= Three.js 组件 + 交互式 shader + 完�
 
 ThreeUI 原作大量用青绿(emerald)/琥珀/银灰/纯黑底，直接照搬违反机主审美红线。落地时按下表换算：
 
-| ThreeUI 常见色 | 用途 | 换算到 wuwo token |
+| ThreeUI 常见色 | 用途 | 换算到 wuwo token（v2.1） |
 |---|---|---|
-| Emerald green（warp-field/structure-flow 主色） | 粒子/streak 强调 | `--tide #7DDCC4`（潮青，同属冷调点缀） |
-| Amber/orange（hypnotic-loops、amber-halftone） | 暖调强调 | `--amber #E89B5A` |
-| Violet/lilac（veyra 紫玻璃、cadence pill） | 主强调 | `--lilac #B9A7FF` |
-| Rose pink（sakura 系） | 柔和次强调 | `--rose #FFA8BE` |
-| Silver/chrome（liquid metal、liquid-form） | 材质高光 | 保留材质但 tint 到 `--moon #F2F4FA` 低饱和，辉光用 `rgba(185,167,255,0.25)` |
-| Pure black `#000` 底 | 场景底色 | 一律换 `--ink #0B1020` 深蓝黑 |
-| White text `#FFF` | 正文 | `--moon #F2F4FA`；次要 `--mist #93A0C2` |
+| Emerald / Amber / Violet / Rose 等彩色主色 | 粒子/streak/强调 | 全部收敛为当前调色板的**唯一** `--accent`（香槟 `#C9A96E` / 胭脂 `#A8544A` / 青瓷 `#93BBAA` 三选一） |
+| Silver/chrome（liquid metal） | 材质高光 | 保留材质，tint 到 `--fg` 骨白，**不加彩色辉光** |
+| Pure black `#000` 底 | 场景底色 | 换 `--bg`（石墨 `#0C0C0D` / 暖墨 `#0F0E0D` / 深岩 `#0B0F12`），并叠颗粒层 |
+| White text `#FFF` | 正文 | `--fg` 骨白；次要用 `--fg-2`（同色 .74 透明），**不换成蓝灰** |
 
-其他红线执行：一次只用 1–2 个点缀色（structure-flow 13 变体只挑一个色系）；玻璃拟态仅用于内容叠内容场景；圆角统一 10/12/16px 三档。
+其他红线执行：一次只用 1 个点缀色（structure-flow 13 变体只挑一个色系）；玻璃拟态仅用于内容叠内容场景；圆角按方向 A：媒体 4px、控件胶囊。
 
 ## 使用纪律
 
