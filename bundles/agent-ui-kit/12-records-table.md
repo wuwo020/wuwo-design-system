@@ -41,7 +41,7 @@
 ```css
 .records-table { width: 100%; border-collapse: collapse; }
 .records-table th { position: sticky; top: 0; text-align: left; padding: 8px 12px;
-  font-size: 12px; color: var(--dim); background: rgba(11,16,32,.9); backdrop-filter: blur(8px); }
+  font-size: 12px; color: var(--dim); background: var(--ink); }   /* 实色，不用玻璃 */
 .records-table td { padding: 11px 12px; border-top: 1px solid rgba(255,255,255,.05); font-size: 14px; }
 .records-table tbody tr:hover { background: rgba(255,255,255,.03); }
 .tag { display: inline-block; padding: 2px 8px; margin-right: 4px; border-radius: 999px;

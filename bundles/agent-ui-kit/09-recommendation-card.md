@@ -42,7 +42,7 @@
 .rec-meter { height: 4px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
 .rec-meter span {
   display: block; height: 100%; border-radius: 999px;
-  background: linear-gradient(90deg, var(--lilac), var(--tide));
+  background: var(--accent);          /* 单色点缀，不用渐变条（v2 规则） */
 }
 .rec-confidence { font-size: 12px; padding: 3px 10px; border-radius: 999px;
   background: rgba(125,220,196,.12); color: var(--tide); }

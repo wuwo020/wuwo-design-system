@@ -1,84 +1,61 @@
-> **WUWO Design System** — 个人/团队设计系统 Skill，可直接装进 AI 编码助手（Codex / Claude Code / Hermes / Pi 等任何支持 `SKILL.md` 的工具）使用。
+# WUWO Design System v2
 
----
+**无我网页设计系统** —— 一套可直接装进 AI 编码助手（Codex / Claude Code / Hermes / Pi 等任何读 `SKILL.md` 的工具）的设计 skill。
+给 AI 一份可执行的视觉立场：先定审美方向，再按手机优先/PC 兼顾的规则搭页面，用滚动与手势跟手动效做沉浸感，并守住去 AI 味底线。
 
-## 这是什么
+## v2 改了什么
 
-一套**完整的设计系统技能包**：给 AI 助手一份可执行的视觉规范，让它在做页面、改 UI、选组件、加动效、定配色、写 `DESIGN.md` 时，产出统一、不"AI 味"的成品。
+v1 是「素材仓库」：54 个站点风格、5 个组件来源、27 个过渡效果，任 AI 挑选拼凑，结果是哪都像、哪都不是，而且默认长相正好是 AI 最容易产出的那一种（紫蓝渐变 + 毛玻璃 + 居中大标题 + 三张一样的卡）。
+v2 换成**有立场的系统**：
 
-它不是一个组件库，也不是一个网站模板——它是**给 AI 看的设计说明书 + 可直接复用的资产**。
+| | v1 | v2 |
+|---|---|---|
+| 审美 | 54 个风格随便挑 | **三套方向**，一个项目声明一套（沉浸暗场 / 仪器极简 / 暖调编辑） |
+| 端 | 只写了「移动优先」，实际只按手机写 | **手机网页优先 + PC 网页各自构图**（PC 不是放大的手机页） |
+| 动效 | 触发式微交互为主 | **滚动/手势跟手**：滚动进度 = 动画进度，含 GSAP / CSS 时间轴 / 手势库阶梯 |
+| 去 AI 味 | 一段红线 | 独立参考文件：视觉 + 文案 + 动效三层禁项与自检 |
+| 组件库 | 5 个来源清单 | **选型手册**：什么时候用、什么时候别用、坑、许可、一个项目一个库 |
+| 可验证 | 无 | 起始模板 + `scripts/dual-screenshot.py` 双端截图验收 |
+| 删除 | — | `bundles/landing-kit`（四项禁项全踩）、悬空引用、玻璃/渐变字当默认值 |
 
-## 两大主题
-
-| 主题 | 说明 |
-|---|---|
-| **暗夜梦核 Dark Dream-core**（默认） | 深蓝黑底 `#0B1020` + 月光白文字 + 粉/紫/青三色点缀，玻璃拟态微光，适合个人品牌、内容站、直播氛围页 |
-| **亮色暖调 Light Warm**（变体） | 奶油底 `#F7F4EF` + 琥珀点缀，适合白天阅读、杂志/编辑风、对外交付 |
-
-两套 token 通过 `html[data-theme="light"]` 切换，同一份代码平滑换肤。
-
-## 目录结构
+## 目录
 
 ```
-SKILL.md              技能主文档（501 行）—— 风格宣言、token、组件规范、动效、流程、反 AI 味清单
-bundles/              可直接用的组件组合包
-  ├── landing-kit/      落地页套件（hero、特性卡…）
-  └── agent-ui-kit/     AI 应用界面套件
-references/           参考与规范
-  ├── transitions/      27 种过渡动效
-  ├── threeui/          三维界面参考
-  └── pretext/          文本排版创意
-templates/            模板库
-  ├── web-designs/      54 个知名网站风格拆解（Stripe / Linear / Vercel / Apple …）
-  ├── design-md/        DESIGN.md 起步模板
-  └── pretext/          排版创意示例页
-scripts/              辅助脚本
+SKILL.md                  主文档：硬规则、方向 token、双端表、滚动手势阶梯、工作流
+references/
+  aesthetic-directions.md 三套审美方向（配色/字体/动效/图像处理）
+  responsive-dual.md      手机网页 + PC 网页成文规则（断点、安全区、悬停门控、双击）
+  scroll-gesture-motion.md 滚动与拇指手势跟手动效（技术阶梯 + 可抄代码 + 已知坑）
+  anti-ai-slop.md         去 AI 味：视觉/文案/动效三层禁项与自检清单
+  library-guide.md        组件库、图标、字体、素材库选型手册（何时用/坑/许可）
+  transitions/            27 个微交互过渡 + motion token（_root.css）
+  threeui/ pretext/       ThreeUI 组件族、中文创意排版
+templates/
+  story-scroll/           滚动叙事起始模板（手机竖屏 + PC 分栏 + 滚轮驱动横移，含降级）
+  design-md/              DESIGN.md 起手式（带方向声明与禁用清单）
+  web-designs/            54 个站点结构拆解（只借结构，不换皮）
+bundles/agent-ui-kit/     AI 应用界面 12 件（状态行、工具调用卡、审批卡、记录表…）
+scripts/
+  dual-screenshot.py      双端截图验收（390×844 与 1440×900；查溢出、报错、GSAP 是否真加载）
+  list-assets.sh          列出资产
 ```
 
-## 安装
+## 三套方向
 
-把整个仓库放到你所用助手的技能目录即可。
+| | A 沉浸暗场 | B 仪器极简 | C 暖调编辑 |
+|---|---|---|---|
+| 用于 | 活动页、直播叙事、品牌页 | 后台、数据、工具、AI 界面 | 长文、报告、公司故事 |
+| 底/字 | 深蓝黑 `#0B1020` + 月光白 | 纯灰阶三档 | 奶油 `#F7F4EF` + 深墨 |
+| 强调色 | 全页只一个：rose/amber/tide/lilac 择一 | 近乎不用色 | 琥珀 `#E89B5A` |
 
-**Codex**
+## 用法
+
 ```bash
-git clone https://github.com/wuwo020/wuwo-design-system.git ~/.codex/skills/wuwo-design-system
+# 装进你的 AI 助手：把本仓库放到其 skill 目录，或直接读 SKILL.md
+python3 scripts/dual-screenshot.py path/to/page.html out/   # 双端截图验收
+bash scripts/list-assets.sh                                # 列出资产
 ```
 
-**Claude Code**
-```bash
-git clone https://github.com/wuwo020/wuwo-design-system.git ~/.claude/skills/wuwo-design-system
-```
+## 来源与许可
 
-**Hermes**
-```bash
-git clone https://github.com/wuwo020/wuwo-design-system.git ~/.hermes/skills/wuwo-design-system
-```
-
-装好后开新会话，直接说需求即可，例如：
-
-> 用 `wuwo-design-system` 做一个产品落地页，暗色主题，三个特性卡，要有微光玻璃质感。
-
-## 包含哪些能力
-
-- **风格宣言**：8 个核心 token + 使用铁律（一次只用 1–2 个点缀色、不用三色渐变、圆角规范、玻璃拟态参数）
-- **组件层**：按钮、卡片、导航、表单、弹窗、表格、空状态等
-- **动效层**：27 种过渡、滚动叙事、微交互、`reduced-motion` 降级
-- **风格库**：54 个知名网站的设计体系拆解，可作参考或混搭
-- **流程层**：从需求到交付的设计流程 + 反 slop（去 AI 味）检查清单
-- **变体工作流**：一次产出多套方案供挑选
-- **文本排版创意**：文字驱动的视觉实验
-- **像素 Logo → SVG → 品牌动效**工作流
-
-## 设计原则（节选）
-
-- 暗色优先，纯白文字要避免（用 `#F2F4FA` 级月光白）
-- 点缀色克制：紫为主，粉/青为辅，琥珀做暖调变体
-- 渐变只用在关键视觉点，双色即可
-- 不用尖锐直角，除非内容明确是工业/终端风
-- 发光用同色系低透明度阴影，不用外发光贴纸感
-
----
-
-## 许可
-
-MIT
+MIT。吸收并改写自 impeccable（craft-floor / adapt）、Emil Kowalski skills（emil-design-eng / pick-ui-library）、nothing-design-skill、uizze/anti-ui-slop、taste-skill、gsap skill，均为 MIT/Apache-2.0 许可，出处已在 `SKILL.md` 标注。

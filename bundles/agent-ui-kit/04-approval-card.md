@@ -37,9 +37,8 @@
 ```css
 .approval-card {
   padding: 20px; border-radius: var(--radius-lg);
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.08);
-  backdrop-filter: blur(12px);
+  background: var(--ink-2);            /* 实色抬升面，不用玻璃（v2 规则） */
+  border: 1px solid var(--line);
   max-width: 420px;
 }
 .appr-options label {
